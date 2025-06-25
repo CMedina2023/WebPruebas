@@ -8,7 +8,7 @@ from datetime import datetime
 app = Flask(__name__)
 # ¡IMPORTANTE! Genera una clave secreta fuerte y única para tu aplicación.
 # NUNCA uses esta en producción. Usa os.urandom(24) o similar.
-app.secret_key = 'tu_clave_secreta_super_segura_aqui_y_muy_larga'  # ¡Cambia esto en producción!
+app.secret_key = os.environ.get('SECRET_KEY', 'default_local_dev_secret_key_very_insecure') 
 DATABASE_NAME = 'BDtask.db'
 
 
