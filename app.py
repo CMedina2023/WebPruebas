@@ -4,10 +4,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
 
-# --- Funciones de Utilidad para la Base de Datos ---
-# Estas funciones deben definirse ANTES de ser llamadas.
+# --- Configuración de la Aplicación Flask ---
+# La instancia de la aplicación Flask debe ser lo primero en definirse después de las importaciones.
+app = Flask(__name__)
 
-DATABASE_NAME = 'taskflow.db' # Define el nombre de la base de datos aquí, antes de usarlo.
+# ¡IMPORTANTE! Genera una clave secreta fuerte y única para tu aplicación.
+# NUNCA uses esta en producción directamente en el código.
+# La obtenemos de una variable de entorno 'SECRET_KEY' (para Render)
+# o usamos una por defecto para desarrollo local (que no sea segura para producción).
+app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_super_secreta_y_larga_para_desarrollo_local_NO_USAR_EN_PRODUCCION_REAL') 
+
+DATABASE_NAME = 'taskflow.db' # Define el nombre de la base de datos.
+
+
+# --- Funciones de Utilidad para la Base de Datos ---
+# Estas funciones (incluyendo aquellas con decoradores de 'app')
+# deben definirse DESPUÉS de que 'app' haya sido instanciada.
 
 def get_db():
     """
@@ -57,7 +69,7 @@ def init_db():
             user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             description TEXT,
-            due_date TEXT, -- Formato YYYY-MM-DD
+            due_date TEXT, -- Formatoั้น-MM-DD
             status TEXT NOT NULL DEFAULT 'Pendiente', -- 'Pendiente' o 'Completada'
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -67,22 +79,12 @@ def init_db():
     conn.commit() # Guarda los cambios en la base de datos.
     print(f"Base de datos '{DATABASE_NAME}' y tablas verificadas/creadas.")
 
-
-# --- Configuración de la Aplicación Flask ---
-app = Flask(__name__)
-
 # Aseguramos que la base de datos y las tablas se inicialicen
 # Esto se ejecuta cuando la aplicación se carga por Gunicorn (en Render) o localmente.
 # Es crucial que se haga dentro de un contexto de aplicación.
 with app.app_context():
-    # Ahora init_db() ya está definida y puede ser llamada.
+    # init_db() ya está definida en este punto.
     init_db()
-
-# ¡IMPORTANTE! Genera una clave secreta fuerte y única para tu aplicación.
-# NUNCA uses esta en producción directamente en el código.
-# La obtenemos de una variable de entorno 'SECRET_KEY' (para Render)
-# o usamos una por defecto para desarrollo local (que no sea segura para producción).
-app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_super_secreta_y_larga_para_desarrollo_local_NO_USAR_EN_PRODUCCION_REAL') 
 
 # --- Decorador para Requerir Autenticación ---
 def login_required(f):
@@ -256,7 +258,7 @@ def add_task():
                 if task_date < datetime.now().date():
                     return render_template('add_edit_task.html', task=None, error='La fecha de vencimiento no puede ser en el pasado.', form_action=url_for('add_task'))
             except ValueError:
-                return render_template('add_edit_task.html', task=None, error='Formato de fecha inválido. Use YYYY-MM-DD.', form_action=url_for('add_task'))
+                return render_template('add_edit_task.html', task=None, error='Formato de fecha inválido. Use-MM-DD.', form_action=url_for('add_task'))
 
         db = get_db()
         cursor = db.cursor()
@@ -312,7 +314,7 @@ def edit_task(task_id):
                 if task_date < datetime.now().date():
                     return render_template('add_edit_task.html', task=task, error='La fecha de vencimiento no puede ser en el pasado.', form_action=url_for('edit_task', task_id=task_id))
             except ValueError:
-                return render_template('add_edit_task.html', task=task, error='Formato de fecha inválido. Use YYYY-MM-DD.', form_action=url_for('edit_task', task_id=task_id))
+                return render_template('add_edit_task.html', task=task, error='Formato de fecha inválido. Use-MM-DD.', form_action=url_for('edit_task', task_id=task_id))
 
         # RN005 - Estado de Tarea: Asegura que el estado sea 'Pendiente' o 'Completada'.
         if status not in ['Pendiente', 'Completada']:
