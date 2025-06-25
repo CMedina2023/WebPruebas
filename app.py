@@ -4,24 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
 
-# --- Configuración de la Aplicación ---
-app = Flask(__name__)
-
-# Aseguramos que la base de datos y las tablas se inicialicen
-# Esto se ejecuta cuando la aplicación se carga por Gunicorn (en Render) o localmente.
-# Es crucial que se haga dentro de un contexto de aplicación.
-with app.app_context():
-    # La función init_db() se encargará de crear el archivo .db y las tablas si no existen.
-    init_db()
-
-# ¡IMPORTANTE! Genera una clave secreta fuerte y única para tu aplicación.
-# NUNCA uses esta en producción directamente en el código.
-# La obtenemos de una variable de entorno 'SECRET_KEY' (para Render)
-# o usamos una por defecto para desarrollo local (que no sea segura para producción).
-app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_super_secreta_y_larga_para_desarrollo_local_NO_USAR_EN_PRODUCCION_REAL') 
-DATABASE_NAME = 'taskflow.db'
-
 # --- Funciones de Utilidad para la Base de Datos ---
+# Estas funciones deben definirse ANTES de ser llamadas.
+
+DATABASE_NAME = 'taskflow.db' # Define el nombre de la base de datos aquí, antes de usarlo.
 
 def get_db():
     """
@@ -81,6 +67,22 @@ def init_db():
     conn.commit() # Guarda los cambios en la base de datos.
     print(f"Base de datos '{DATABASE_NAME}' y tablas verificadas/creadas.")
 
+
+# --- Configuración de la Aplicación Flask ---
+app = Flask(__name__)
+
+# Aseguramos que la base de datos y las tablas se inicialicen
+# Esto se ejecuta cuando la aplicación se carga por Gunicorn (en Render) o localmente.
+# Es crucial que se haga dentro de un contexto de aplicación.
+with app.app_context():
+    # Ahora init_db() ya está definida y puede ser llamada.
+    init_db()
+
+# ¡IMPORTANTE! Genera una clave secreta fuerte y única para tu aplicación.
+# NUNCA uses esta en producción directamente en el código.
+# La obtenemos de una variable de entorno 'SECRET_KEY' (para Render)
+# o usamos una por defecto para desarrollo local (que no sea segura para producción).
+app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_super_secreta_y_larga_para_desarrollo_local_NO_USAR_EN_PRODUCCION_REAL') 
 
 # --- Decorador para Requerir Autenticación ---
 def login_required(f):
