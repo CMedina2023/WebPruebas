@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <style>
+        /* Estilos CSS básicos para la aplicación */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4CAF50; /* Verde vibrante */
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        nav a:hover {
+            color: #c8e6c9; /* Tono más claro al pasar el mouse */
+        }
+        main {
+            flex-grow: 1;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 2rem auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        form {
+            background-color: #fdfdfd;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        form input[type="text"],
+        form input[type="password"],
+        form input[type="email"],
+        form input[type="date"],
+        form textarea,
+        form select {
+            width: calc(100% - 20px); /* Ajuste para el padding */
+            padding: 0.8rem 10px;
+            margin-bottom: 1.2rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Para que el padding no aumente el ancho total */
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        .message.error {
+            background-color: #ffdddd;
+            color: #d8000c;
+            padding: 0.8rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #d8000c;
+        }
+        .task-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .task-item {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            position: relative;
+        }
+        .task-item h3 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        .task-item p {
+            margin: 0;
+            color: #555;
+            font-size: 0.95rem;
+        }
+        .task-item .actions {
+            display: flex;
+            gap: 0.7rem;
+            margin-top: 0.8rem;
+        }
+        .task-item .actions button,
+        .task-item .actions a {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: inline-block;
+            text-align: center;
+        }
+        .task-item .actions .edit-btn {
+            background-color: #2196F3; /* Azul */
+            color: white;
+        }
+        .task-item .actions .edit-btn:hover {
+            background-color: #1976D2;
+        }
+        .task-item .actions .delete-btn {
+            background-color: #f44336; /* Rojo */
+            color: white;
+        }
+        .task-item .actions .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        .task-item .actions .mark-complete-btn {
+            background-color: #8BC34A; /* Verde claro */
+            color: white;
+        }
+        .task-item .actions .mark-complete-btn:hover {
+            background-color: #689F38;
+        }
+        .task-item .actions .mark-pending-btn {
+            background-color: #FFC107; /* Naranja */
+            color: white;
+        }
+        .task-item .actions .mark-pending-btn:hover {
+            background-color: #FFA000;
+        }
+        .task-status {
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            align-self: flex-start; /* Para que no ocupe todo el ancho */
+        }
+        .task-status.Pendiente {
+            background-color: #ffe0b2; /* Naranja claro */
+            color: #e65100; /* Naranja oscuro */
+        }
+        .task-status.Completada {
+            background-color: #c8e6c9; /* Verde muy claro */
+            color: #2e7d32; /* Verde oscuro */
+        }
+        footer {
+            margin-top: auto; /* Empuja el footer hacia abajo */
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .filter-search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-search-form > div {
+            flex: 1;
+            min-width: 150px;
+        }
+        .filter-search-form button {
+            white-space: nowrap; /* Evita que el texto del botón se rompa */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TaskFlow</h1>
+        <nav>
+            {% if session.user_id %} {# Esto verifica si el usuario está logueado #}
+                <span>Hola, {{ session.username }}</span>
+                <a href="{{ url_for('tasks_list') }}">Mis Tareas</a>
+                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Iniciar Sesión</a>
+                <a href="{{ url_for('register') }}">Registrarse</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            {# Esto es para mostrar mensajes de error/éxito que vengan del backend #}
+            {% if error %}
+                <p class="message error">{{ error }}</p>
+            {% endif %}
+
+            {% block content %}{% endblock %} {# Aquí se insertará el contenido específico de cada página #}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TaskFlow. Todos los derechos reservados.</p>
+    </footer>
+
+    {% block scripts %}{% endblock %} {# Aquí irán scripts JavaScript específicos si los hay #}
+</body>
+</html>

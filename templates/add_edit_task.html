@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{% if task %}Editar Tarea{% else %}Crear Tarea{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if task %}Editar Tarea{% else %}Crear Nueva Tarea{% endif %}</h2>
+
+    <form action="{{ form_action }}" method="POST">
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" value="{{ task.title if task else '' }}" required>
+
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description">{{ task.description if task else '' }}</textarea>
+
+        <label for="due_date">Fecha de Vencimiento (YYYY-MM-DD):</label>
+        <input type="date" id="due_date" name="due_date" value="{{ task.due_date if task else '' }}">
+
+        {% if task %} {# Solo mostrar el selector de estado si estamos editando una tarea existente #}
+            <label for="status">Estado:</label>
+            <select id="status" name="status">
+                <option value="Pendiente" {% if task.status == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Completada" {% if task.status == 'Completada' %}selected{% endif %}>Completada</option>
+            </select>
+        {% endif %}
+
+        <button type="submit">{% if task %}Actualizar Tarea{% else %}Crear Tarea{% endif %}</button>
+        <a href="{{ url_for('tasks_list') }}" style="margin-left: 10px; text-decoration: none; color: #333;">Cancelar</a>
+    </form>
+{% endblock %}
